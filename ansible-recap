@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+_G_FILE=""
+_G_HOSTS=()
+_G_EXIT=0
+
+_fetch_hosts() {
+  hosts=$(jq -r '.stats | keys[]' < "${_G_FILE}" | tr "\n" " ")
+
+  echo "$hosts"
+}
+
+_print_host() {
+  host="$1"
+
+  changed=$(jq ".stats[\"$host\"].changed" < "${_G_FILE}")
+  failures=$(jq ".stats[\"$host\"].failures" < "${_G_FILE}")
+  unreachable=$(jq ".stats[\"$host\"].unreachable" < "${_G_FILE}")
+
+  status=''
+
+  [[ $changed -eq 0 ]] || status="🟨"
+  [[ $failures -eq 0 ]] || status="🟥"
+  [[ $unreachable -eq 0 ]] || status="🟥"
+
+  [[ -z $status ]] || echo "| $status | $host | $changed | $failures | $unreachable |"
+}
+
+_print_hosts() {
+  for host in "${_G_HOSTS[@]}"; do
+    _print_host "$host"
+    [[ -z $status ]] || _G_EXIT=1
+  done
+}
+
+_print_stats() {
+  output=$(_print_hosts)
+
+  [[ -z $output ]] && exit 0
+
+  {
+    echo "| Status | Host | Changes | Failures | Unreachable |"
+    echo "|:------:|------|--------:|---------:|------------:|"
+
+    for host in "${_G_HOSTS[@]}"; do
+      _print_host "$host"
+      [[ -z $status ]] || _G_EXIT=1
+    done
+  } | glow
+  exit 1
+}
+
+[[ $# -eq 1 ]] || exit 1
+
+_G_FILE="$1"
+_G_HOSTS=($(_fetch_hosts))
+
+_print_stats _G_HOSTS
