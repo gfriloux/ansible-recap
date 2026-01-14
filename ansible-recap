@@ -2,7 +2,6 @@
 
 _G_FILE=""
 _G_HOSTS=()
-_G_EXIT=0
 
 _fetch_hosts() {
   hosts=$(jq -r '.stats | keys[]' < "${_G_FILE}" | tr "\n" " ")
@@ -44,7 +43,6 @@ _print_stats() {
 
     for host in "${_G_HOSTS[@]}"; do
       _print_host "$host"
-      [[ -z $status ]] || _G_EXIT=1
     done
   } | glow
   exit 1
@@ -57,4 +55,4 @@ _G_FILE="$1"
 # shellcheck disable=SC2207
 _G_HOSTS=($(_fetch_hosts))
 
-_print_stats _G_HOSTS
+_print_stats
