@@ -53,6 +53,8 @@ _print_stats() {
 [[ $# -eq 1 ]] || exit 1
 
 _G_FILE="$1"
+
+# shellcheck disable=SC2207
 _G_HOSTS=($(_fetch_hosts))
 
 _print_stats _G_HOSTS
