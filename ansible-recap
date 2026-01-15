@@ -4,9 +4,7 @@ _G_FILE=""
 _G_HOSTS=()
 
 _fetch_hosts() {
-  hosts=$(jq -r '.stats | keys[]' < "${_G_FILE}" | tr "\n" " ")
-
-  echo "$hosts"
+  jq -r '.stats | keys[]' < "${_G_FILE}" | tr "\n" " "
 }
 
 _print_host() {
