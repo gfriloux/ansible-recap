@@ -28,7 +28,6 @@ _print_host() {
 _print_hosts() {
   for host in "${_G_HOSTS[@]}"; do
     _print_host "$host"
-    [[ -z $status ]] || _G_EXIT=1
   done
 }
 
@@ -40,10 +39,7 @@ _print_stats() {
   {
     echo "| Status | Host | Changes | Failures | Unreachable |"
     echo "|:------:|------|--------:|---------:|------------:|"
-
-    for host in "${_G_HOSTS[@]}"; do
-      _print_host "$host"
-    done
+    printf '%s\n' "$output"
   } | glow
   exit 1
 }
