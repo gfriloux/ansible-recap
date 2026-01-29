@@ -29,15 +29,35 @@ _print_hosts() {
   done
 }
 
+_print_changed() {
+  jq -r '
+    .plays[]
+    | .tasks[]
+    | select([.hosts | to_entries[] | .value.changed] | any)
+    | "# 🟨 task: \(.task.name)\n" +
+      ([
+        .hosts | to_entries[]
+        | select(.value.changed == true)
+        | .key as $key
+        | "\t 💻 \($key)"
+       ] | join("\n")
+      ) + "\n"
+    ' "${_G_FILE}"
+}
+
 _print_stats() {
   output=$(_print_hosts)
 
   [[ -z $output ]] && exit 0
 
+  changed=$(_print_changed)
+
   {
     echo "| Status | Host | Changes | Failures | Unreachable |"
     echo "|:------:|------|--------:|---------:|------------:|"
     printf '%s\n' "$output"
+    echo
+    echo "${changed}"
   } | glow
   exit 1
 }
