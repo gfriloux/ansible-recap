@@ -2,7 +2,7 @@
 
 writeShellApplication {
   name = "ansible-recap";
-  text = (builtins.readFile ../../ansible-recap);
+  text = (builtins.readFile ./ansible-recap);
   runtimeInputs = with pkgs; [
     bash
     jq
